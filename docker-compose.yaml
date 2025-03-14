@@ -1,0 +1,29 @@
+services:
+  postgresql-user:
+    image: postgres:15.3
+    container_name: postgresql-user
+    ports:
+      - "5432:5432"
+    # env_file:
+    #   - ./02-users/.env
+    environment:
+      POSTGRES_USER: admin       
+      POSTGRES_PASSWORD: 12345   
+      POSTGRES_DB: user_db 
+    volumes:
+      - vol-spotify-ms-postgresql:/var/lib/postgresql/data
+    networks:
+      - net-spotify-ms
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d user_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
+volumes:
+  vol-spotify-ms-postgresql:
+
+networks:
+  net-spotify-ms:
+    driver: bridge
