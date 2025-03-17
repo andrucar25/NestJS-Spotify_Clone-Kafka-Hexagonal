@@ -4,7 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import { BaseException } from '../../../core/exceptions/base.exception';
 import { UpdateUserProps, User, UserProps } from '../domain/user';
-import { UserGetOneDatabaseException, UserSaveDatabaseException, UserUpdateDatabaseException } from '../../../core/exceptions/database.exception';
+import { EmailNotRegisteredException, UserGetByEmailDatabaseException, UserGetOneDatabaseException, UserSaveDatabaseException, UserUpdateDatabaseException } from '../../../core/exceptions/database.exception';
 import { UserEntity } from './entities/user.entity';
 import { UserRepository } from '../domain/repositories/user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -93,6 +93,22 @@ export class UserInfrastructure implements UserRepository {
       await queryRunner.release();
 
       return err(new UserUpdateDatabaseException(error.message, error.stack));
+    }
+  }
+
+  async getByEmail(email: string) {    
+    try {
+      const userEntity = await this.repository.findOne({
+        where: { email: email, isActive: true }
+      });
+
+      if (!userEntity) {
+        return err(new EmailNotRegisteredException());
+      }
+
+      return ok(new User(userEntity));
+    } catch(error) {
+      return err(new UserGetByEmailDatabaseException(error.message, error.stack));
     }
   }
 

@@ -27,4 +27,8 @@ export class UserApplication {
     return this.repository.findById(userId);
   }
 
+  async getByEmail(email: string) {
+    return this.repository.getByEmail(email);
+  }
+
 }

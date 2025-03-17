@@ -5,4 +5,5 @@
     abstract save(user: User): UserResult;
     abstract findById(userId: string): UserGetOneResult;
     abstract update(userId: string, user: UpdateUserProps): UserResult;
+    abstract getByEmail(email: string): UserGetOneResult;
   };

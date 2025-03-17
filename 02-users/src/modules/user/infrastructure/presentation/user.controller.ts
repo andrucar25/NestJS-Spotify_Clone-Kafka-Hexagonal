@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Inject, InternalServerErrorException, Param, Patch, Post} from '@nestjs/common';
+import { Body, Controller, Get, Inject, InternalServerErrorException, Param, Patch, Post, Query} from '@nestjs/common';
 
 import { UserApplication } from '../../application/user.application';
 import { UserCreateDto } from './dtos/create-user.dto';
 import { User } from '../../domain/user';
-import { UserGetOneDatabaseException, UserSaveDatabaseException } from '../../../../core/exceptions/database.exception';
+import { EmailNotRegisteredException, UserGetOneDatabaseException, UserSaveDatabaseException } from '../../../../core/exceptions/database.exception';
 import { UserIdDto } from './dtos/user-id.dto';
 import { UserUpdateDto } from './dtos/update-user.dto';
+import { UserByEmailDto } from './dtos/user-by-email.dto';
 
 @Controller('users')
 export class UserController {
@@ -63,11 +64,10 @@ export class UserController {
     
   }
 
-  @Get('/:userId')
-  async getOne(@Param() param: UserIdDto) {
-    const { userId } = param;
-
-    const result = await this.application.findById(userId);
+  @Get('/user-by-email')
+  async getByEmail(@Query() query: UserByEmailDto){
+    const {email} = query;
+    const result = await this.application.getByEmail(email);
 
     if (result.isErr()) {
       if (result.error instanceof UserGetOneDatabaseException) {
@@ -80,8 +80,29 @@ export class UserController {
 
     if(result.isOk()){
       return result.value;
+    }    
+  }
+
+  @Get('/:userId')
+  async getOne(@Param() param: UserIdDto) {
+    const { userId } = param;
+
+    const result = await this.application.findById(userId);
+
+    if (result.isErr()) {
+      if (result.error instanceof EmailNotRegisteredException) {
+        throw new InternalServerErrorException(result.error.message, {
+          cause: result,
+          description: result.error.stack,
+        });
+      }
+    } 
+
+    if(result.isOk()){
+      return result.value;
     }
     
   }
+
 
 }
