@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Inject, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { GatewayApplication } from '../../application/gateway.application';
@@ -52,4 +52,21 @@ export class GatewayController {
 
     return result.value;
   }
+
+  @Post('playlists')
+  @UseGuards(JwtAuthGuard)
+  async savePlaylist(@Body() body, @Request() req) {
+    const savePlaylistUrl = this.configService.get<string>('SERVICE_PLAYLIST')!; 
+
+    const userId = req.user.userId;
+    const bodyWithUserId = { ...body, userId };
+    const result = await this.application.endpointRequest(savePlaylistUrl, 'POST', bodyWithUserId);
+
+    if (result.isErr()) {
+      throw result.error;
+    }
+
+    return result.value;
+  }
+
 }

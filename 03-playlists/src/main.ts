@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
@@ -9,8 +9,16 @@ const logger = new Logger();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
+    }),
+  );
+  
   const config = app.get(ConfigService);
-  const port = config.get('PORT') || 3000;
+  const port = config.get('PORT') || 3030;
 
   await app.listen(port, () =>
     logger.log(

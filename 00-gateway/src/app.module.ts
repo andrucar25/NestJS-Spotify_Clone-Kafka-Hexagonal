@@ -14,7 +14,8 @@ import { GatewayModule } from './modules/infrastructure/presentation/gateway.mod
         PORT: Joi.number().required(),
         TOKEN_SECRET: Joi.string().required(),
         SERVICE_AUTH_LOGIN: Joi.string().required(),
-        SERVICE_USER: Joi.string().required()
+        SERVICE_USER: Joi.string().required(),
+        SERVICE_PLAYLIST: Joi.string().required()
       }),
     }),  
     GatewayModule  

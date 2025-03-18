@@ -20,9 +20,28 @@ services:
       timeout: 3s
       retries: 5
 
+  postgresql-playlist:
+    image: postgres:15.3
+    container_name: postgresql-playlist
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin       
+      POSTGRES_PASSWORD: 12345   
+      POSTGRES_DB: playlist_db
+    volumes:
+      - vol-playlist-db:/var/lib/postgresql/data
+    networks:
+      - net-spotify-ms
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d playlist_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   vol-spotify-ms-postgresql:
+  vol-playlist-db:
 
 networks:
   net-spotify-ms:
