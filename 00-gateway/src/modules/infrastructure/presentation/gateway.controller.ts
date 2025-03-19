@@ -1,4 +1,7 @@
-import { Body, Controller, Inject, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
+// import FormData from 'form-data';
+import * as FormData from 'form-data';
+import { Body, Controller, Inject, Param, Patch, Post, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 
 import { GatewayApplication } from '../../application/gateway.application';
@@ -67,6 +70,31 @@ export class GatewayController {
     }
 
     return result.value;
+  }
+
+  @Post('songs')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadSong (
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body) {
+
+      const uploadSongUrl = this.configService.get<string>('SERVICE_SONG')!;
+      const formData = new FormData();
+      if(file){
+        formData.append('file', file.buffer, file.originalname);
+      }
+      if(body.musicalGenre){
+        formData.append('musicalGenre', body.musicalGenre);
+      }
+
+      const result = await this.application.endpointRequest(uploadSongUrl, 'POST', formData);
+  
+      if (result.isErr()) {
+        throw result.error;
+      }
+  
+      return result.value;
   }
 
 }

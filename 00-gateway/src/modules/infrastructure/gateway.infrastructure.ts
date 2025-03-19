@@ -12,12 +12,14 @@ export class GatewayInfrastructure implements GatewayRepository {
 
   async requestByType(url: string, method: string, data: any): Promise<RequestResult> {
     try{
+      const headers = data.getHeaders ? data.getHeaders() : {};
       const response = await firstValueFrom(this.httpService.request({
         method: method,
         url: url,
-        data: data
+        data: data,
+        headers: headers
       }));
-
+      
       return ok(response.data);
     } catch (error){
       if (error.response) {
