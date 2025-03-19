@@ -1,5 +1,6 @@
 import { BadRequestException, Body, Controller, Inject, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ClientKafka } from '@nestjs/microservices';
 
 import { SongApplication } from '../../application/song.application';
 import { Song } from '../../domain/song';
@@ -10,7 +11,10 @@ import { UploadSongDto } from './dtos/upload-song.dto';
 export class SongController {
   constructor(
     @Inject(SongApplication)
-    private readonly application: SongApplication
+    private readonly application: SongApplication,
+
+    @Inject('KAFKA_SERVICE')
+    private readonly kafkaClient: ClientKafka,
   ) {}
 
   @Post()
@@ -43,6 +47,12 @@ export class SongController {
     }
 
     const songName = songSaved.value.name;
+
+    //emit to kafka
+    this.kafkaClient.emit('song-uploaded', {
+      musicalGenre,
+      songName,
+    });
 
     return {
       musicalGenre,

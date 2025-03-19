@@ -15,6 +15,7 @@ import { PlaylistModule } from './modules/playlist/infrastructure/presentation/p
         DB_NAME: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
+        KAFKA_BROKER: Joi.string().required()
       }),
     }),
     TypeOrmModule.forRootAsync({

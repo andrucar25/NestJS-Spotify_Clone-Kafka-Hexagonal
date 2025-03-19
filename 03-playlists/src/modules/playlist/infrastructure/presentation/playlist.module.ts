@@ -6,10 +6,11 @@ import { PlaylistEntity } from '../entities/playlist.entity';
 import { PlaylistInfrastructure } from '../playlist.infrastructure';
 import { PlaylistRepository } from '../../domain/repositories/playlist.repository';
 import { PlaylistApplication } from '../../application/playlist.application';
+import { KafkaConsumer } from './kafka.consumer';
 
 
 @Module({
-  controllers: [PlaylistController],
+  controllers: [PlaylistController, KafkaConsumer],
   providers: [
     PlaylistInfrastructure,
     PlaylistApplication,

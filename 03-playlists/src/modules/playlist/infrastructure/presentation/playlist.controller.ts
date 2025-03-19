@@ -6,7 +6,6 @@ import { Playlist } from '../../domain/playlist';
 import { PlaylistGetDatabaseException, PlaylistSaveDatabaseException } from '../../../../core/exceptions/database.exception';
 import { AddSongDto } from './dtos/add-song.dto';
 
-
 @Controller('playlists')
 export class PlaylistController {
 
