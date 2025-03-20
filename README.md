@@ -66,7 +66,7 @@ The project is organized into the following microservices:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/andrucar25/mini-spotify-clone.git
+   git clone https://github.com/andrucar25/NestJS-Spotify_Clone-Kafka-Hexagonal.git
    cd mini-spotify-clone
 
 2. **Up the proyect**:
