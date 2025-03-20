@@ -81,6 +81,105 @@ services:
       - 9092:9092
     networks:
       - net-spotify-ms
+  gateway-service:
+    build:
+      context: ./00-gateway  
+      dockerfile: Dockerfile  
+    container_name: gateway-service
+    restart: unless-stopped
+    depends_on:
+      postgresql-user:
+        condition: service_healthy 
+      postgresql-playlist:
+        condition: service_healthy  
+    environment:
+      PORT: 3000  
+      TOKEN_SECRET: c270f3c2-ad37-4148-a7cb-12a21f886cdb  
+      SERVICE_AUTH_LOGIN: http://auth-service:3010/auth/login  
+      SERVICE_USER: http://users-service:3020/users  
+      SERVICE_PLAYLIST: http://playlists-service:3030/playlists  
+      SERVICE_SONG: http://songs-service:3040/songs  
+    ports:
+      - "3000:3000"  
+    networks:
+      - net-spotify-ms
+  auth-service:
+    build:
+      context: ./01-auth  
+      dockerfile: Dockerfile  
+    container_name: auth-service
+    restart: unless-stopped
+    depends_on:
+      postgresql-user:
+        condition: service_healthy  
+    environment:
+      PORT: 3010 
+      SERVICE_USER_BY_EMAIL: http://users-service:3020/users/user-by-email 
+      TOKEN_SECRET: c270f3c2-ad37-4148-a7cb-12a21f886cdb
+    ports:
+      - "3010:3010"  
+    networks:
+      - net-spotify-ms
+  users-service:
+    build:
+      context: ./02-users  
+      dockerfile: Dockerfile  
+    container_name: users-service
+    restart: unless-stopped
+    depends_on:
+      postgresql-user:
+        condition: service_healthy  
+    environment:
+      DB_HOST: postgresql-user  
+      DB_PORT: 5432
+      DB_NAME: user_db
+      DB_USERNAME: admin
+      DB_PASSWORD: 12345
+      PORT: 3020
+    ports:
+      - "3020:3020"  
+    networks:
+      - net-spotify-ms
+
+  playlists-service:
+    build:
+      context: ./03-playlists  
+      dockerfile: Dockerfile  
+    container_name: playlists-service
+    restart: unless-stopped
+    depends_on:
+      postgresql-playlist:
+        condition: service_healthy  
+    environment:
+      DB_HOST: postgresql-playlist
+      DB_PORT: 5432
+      DB_NAME: playlist_db
+      DB_USERNAME: admin
+      DB_PASSWORD: 12345
+      PORT: 3030
+      KAFKA_BROKER: kafka:29092
+    ports:
+      - "3030:3030"  
+    networks:
+      - net-spotify-ms
+
+  songs-service:
+    build:
+      context: ./04-songs  
+      dockerfile: Dockerfile  
+    container_name: songs-service
+    restart: unless-stopped
+    depends_on:
+      postgresql-playlist:
+        condition: service_healthy  
+    environment:
+      PORT: 3040
+      KAFKA_BROKER: kafka:29092
+    ports:
+      - "3040:3040"  
+    networks:
+      - net-spotify-ms
+      
 
 volumes:
   vol-spotify-ms-postgresql:
