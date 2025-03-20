@@ -11,10 +11,6 @@ export const fileFilter = (
 
   const allowedMimeTypes = [
     'audio/mpeg', // MP3
-    'audio/wav',  // WAV
-    'audio/ogg',  // OGG
-    'audio/x-m4a', // M4A
-    'audio/x-aac', // AAC
   ];
 
   if (!allowedMimeTypes.includes(file.mimetype)) {
