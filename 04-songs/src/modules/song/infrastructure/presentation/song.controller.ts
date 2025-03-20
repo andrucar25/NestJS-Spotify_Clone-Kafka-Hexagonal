@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Inject, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Inject, Param, Post, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClientKafka } from '@nestjs/microservices';
 
@@ -6,6 +6,9 @@ import { SongApplication } from '../../application/song.application';
 import { Song } from '../../domain/song';
 import { fileFilter } from '../../helpers/fileFilter';
 import { UploadSongDto } from './dtos/upload-song.dto';
+import { Response } from 'express';
+import { join } from 'path';
+import { statSync } from 'fs';
 
 @Controller('songs')
 export class SongController {
@@ -58,5 +61,30 @@ export class SongController {
       musicalGenre,
       songName
     };
+  }
+
+
+  @Get('stream/:filename')
+  async streamAudio(
+    @Param('filename') filename: string,
+    @Res({ passthrough: true}) response: Response
+  ): Promise<StreamableFile> {
+    
+    const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}-.+.mp3$/;
+    if (!UUID_REGEX.test(filename)) {
+      throw new BadRequestException('Invalid filename format');
+    }
+
+    const streamableFile = await this.application.stream(filename);
+
+    const filePath = join(process.cwd(), 'public', 'audios', filename);
+    const stat = statSync(filePath);
+    
+    response.set({
+      'Content-Length': stat.size,
+      'Content-Type': 'audio/mpeg',
+    });
+
+    return streamableFile;
   }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, StreamableFile } from '@nestjs/common';
 
 import { Song } from '../domain/song';
 import { SongRepository } from '../domain/repositories/song.repository';
@@ -13,6 +13,10 @@ export class SongApplication {
 
   async save(song: Song) {
     return this.repository.save(song);
+  }
+
+  async stream(filename: string): Promise<StreamableFile> {
+    return this.repository.stream(filename);
   }
 
 }

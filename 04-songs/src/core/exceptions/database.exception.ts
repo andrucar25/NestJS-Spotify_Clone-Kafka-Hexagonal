@@ -24,3 +24,11 @@ export class SongFileSystemException extends BaseException {
     this.status = 500;
   }
 }
+
+export class SongStreamException extends BaseException {
+  constructor(message: string, stack?: string) {
+    super(message, stack);
+    this.name = ErrorMessage.SONG_STREAM_EXCEPTION;
+    this.status = 500;
+  }
+}
